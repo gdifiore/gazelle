@@ -1,6 +1,5 @@
 #include "../include/task.h"
 
-// Array of tasks
 TaskControlBlock taskList[MAX_TASKS];
 uint8_t currentTask = 0;
 
@@ -37,6 +36,7 @@ void switchContextTo(TaskControlBlock *nextTask)
           [nextTask] "r"(nextTask->stackPointer));
 }
 
+// round-robin
 void schedule(void)
 {
     // start with task 0 if not already running
