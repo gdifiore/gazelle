@@ -1,23 +1,23 @@
 /*******************************************************************************
  * File: task2.c
- * 
- * Description: 
+ *
+ * Description:
  *   Implementation of task2 for the RTOS. Outputs a message and then delays.
- * 
+ *
  * Author: Gabe DiFiore
  * Created: 2025-05-08
- * 
+ *
  * Target MCU: ATmega328P
  * Toolchain: avr-gcc, avr-libc
  * Platform: Arduino Nano (bare-metal)
- * 
+ *
  * Notes:
  *   This is a simple demo task that prints "Task 2" and then
  *   delays for 100ms before returning to the scheduler.
  ******************************************************************************/
 
 #include "../tasks.h"
-#include "../tinylibc/tinylibc.h"
+#include "../tinylibc/io.h"
 #include "../rtos.h"
 
 void task2(void)

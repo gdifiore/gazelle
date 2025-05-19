@@ -1,0 +1,11 @@
+#ifndef TINYLIBC_STRING_H
+#define TINYLIBC_STRING_H
+
+#include <stddef.h>
+
+size_t tinylibc_strlen(const char *s);
+int tinylibc_strcmp(const char *a, const char *b);
+char *tinylibc_strcpy(char *dest, const char *src);
+void *tinylibc_memset(void *dest, int val, size_t n);
+
+#endif
