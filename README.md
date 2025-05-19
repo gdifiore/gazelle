@@ -6,7 +6,7 @@ BYO RTOS targeting the Arduino Nano's ATmega328 processor
 - [ ] idle task
 - [x] UART output
 - [ ] IPC
-- [ ] timing(?)
+- [x] timing
 - [ ] memory management
 
 ## Pre-Requisites

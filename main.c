@@ -20,14 +20,17 @@
 #include <util/delay.h>
 #include "rtos.h"
 #include "tasks.h"
+#include "uart.h"
 #include "tinylibc/tinylibc.h"
 
 int main(void)
 {
-
+    uart_init();
     rtos_init();
+
     rtos_create_task(task1);
     rtos_create_task(task2);
+
     rtos_start();
 
     while (1)

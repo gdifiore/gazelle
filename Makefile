@@ -9,7 +9,9 @@ BAUD = 115200
 TARGET = gazelle
 
 # Source files
-SRC = main.c rtos.c uart.c tinylibc/conv.c tinylibc/debug.c tinylibc/io.c tinylibc/string.c tasks/task1.c tasks/task2.c
+SRC = main.c rtos.c uart.c timer.c uart_buffer.c \
+		tinylibc/conv.c tinylibc/debug.c tinylibc/io.c tinylibc/string.c \
+		tasks/task1.c tasks/task2.c
 
 # Compiler and tools
 CC = avr-gcc

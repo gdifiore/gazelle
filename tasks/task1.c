@@ -23,5 +23,5 @@
 void task1(void)
 {
     tinylibc_printf("Task 1\n");
-    rtos_delay(100);
+    rtos_sleep_ticks(100);
 }
