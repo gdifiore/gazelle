@@ -78,11 +78,11 @@ int main(void)
         medium_prio_task_X might run if both HIGH tasks are either holding/waiting for the semaphore AND also then go to sleep for other reasons (or if the holder sleeps while holding).
         When sem_holder_task releases the semaphore, sem_waiter_task should acquire it shortly after.
         If both sem_holder_task and sem_waiter_task are ready and the semaphore is free, they should round-robin.
-
+    */
     rtos_create_task(sem_holder_task, HIGH);
     rtos_create_task(sem_waiter_task, HIGH); // Same priority to test RR when sem is free
-    rtos_create_task(medium_prio_task_X, MEDIUM); // Runs if HIGH tasks are blocked/sleeping
-    */
+    //rtos_create_task(medium_prio_task_X, MEDIUM); // Runs if HIGH tasks are blocked/sleeping
+    //*/
 
     /*
     Test Scenario 5: Idle Task Verification
@@ -98,10 +98,10 @@ int main(void)
     Expected: Producer writes data to the shared buffer, Consumer reads it.
     Both tasks run at HIGH priority to show round-robin behavior when ready.
     Output should show interleaved PRODUCER and CONSUMER messages.
-    */
+
     rtos_create_task(ipc_producer_task, HIGH);
     rtos_create_task(ipc_consumer_task, HIGH);
-
+    */
     rtos_start();
 
     return 0;

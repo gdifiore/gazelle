@@ -33,7 +33,6 @@ typedef struct
     uint8_t waiting_on_sem; // Semaphore ID the task is waiting on (0xFF if none)
 } Task;
 
-#define MAX_TASKS 5
 static Task tasks[MAX_TASKS];
 static int task_count = 0;
 static int current_task_index = 0;
@@ -54,6 +53,7 @@ void rtos_init(void)
     for (int i = 0; i < MAX_SEMAPHORES; i++)
     {
         semaphores[i].available = 0; // Initialize to taken
+        semaphores[i].wait_count = 0;
     }
     // Create idle task
     tasks[0].fn = idle_task;
@@ -115,33 +115,59 @@ void rtos_sem_init(uint8_t sem_id, uint8_t initial_value)
     }
 }
 
-void rtos_sem_acquire(uint8_t sem_id)
+__bool rtos_sem_acquire(uint8_t sem_id)
 {
     if (sem_id >= MAX_SEMAPHORES)
-    {
         tinylibc_panic("Invalid semaphore ID");
-    }
+
     if (semaphores[sem_id].available)
     {
-        semaphores[sem_id].available = 0;                // Take semaphore
-        tasks[current_task_index].waiting_on_sem = 0xFF; // Clear waiting state
+        semaphores[sem_id].available = 0; // Take semaphore
         tasks[current_task_index].state = TASK_READY;
+        tasks[current_task_index].waiting_on_sem = 0xFF;
+        return true;
     }
     else
     {
-        tasks[current_task_index].waiting_on_sem = sem_id; // Mark task as waiting
-        tasks[current_task_index].state = TASK_SLEEPING;
-        tasks[current_task_index].wake_tick = system_ticks + 1; // Retry after 1 tick
+        Semaphore *sem = &semaphores[sem_id];
+        if (sem->wait_count < MAX_WAITERS_PER_SEM)
+        {
+            sem->wait_queue[sem->wait_count++] = current_task_index;
+            tasks[current_task_index].state = TASK_BLOCKED;
+            tasks[current_task_index].waiting_on_sem = sem_id;
+        }
+        else
+        {
+            tinylibc_panic("Semaphore wait queue full");
+        }
+        return false;
     }
 }
 
 void rtos_sem_release(uint8_t sem_id)
 {
     if (sem_id >= MAX_SEMAPHORES)
-    {
         tinylibc_panic("Invalid semaphore ID");
+
+    Semaphore *sem = &semaphores[sem_id];
+
+    if (sem->wait_count > 0)
+    {
+        uint8_t task_idx = sem->wait_queue[0];
+
+        // Shift queue left
+        for (uint8_t i = 1; i < sem->wait_count; i++)
+            sem->wait_queue[i - 1] = sem->wait_queue[i];
+
+        sem->wait_count--;
+
+        tasks[task_idx].state = TASK_READY;
+        tasks[task_idx].waiting_on_sem = 0xFF;
     }
-    semaphores[sem_id].available = 1; // Release semaphore
+    else
+    {
+        sem->available = 1;
+    }
 }
 
 void rtos_start(void)
@@ -167,16 +193,9 @@ void rtos_start(void)
             }
             else if (task->state == TASK_SLEEPING && system_ticks >= task->wake_tick)
             {
+                task->state = TASK_READY;
+                task->wake_tick = 0;
                 is_actually_ready = true;
-            }
-
-            // If it seems ready, check if it's blocked by a semaphore it's waiting on
-            if (is_actually_ready && task->waiting_on_sem != 0xFF)
-            {
-                if (!semaphores[task->waiting_on_sem].available)
-                {
-                    is_actually_ready = false; // Still blocked by semaphore
-                }
             }
 
             if (is_actually_ready)
@@ -211,15 +230,9 @@ void rtos_start(void)
                     }
                     else if (task->state == TASK_SLEEPING && system_ticks >= task->wake_tick)
                     {
+                        task->state = TASK_READY;
+                        task->wake_tick = 0;
                         is_actually_ready = true;
-                    }
-
-                    if (is_actually_ready && task->waiting_on_sem != 0xFF)
-                    {
-                        if (!semaphores[task->waiting_on_sem].available)
-                        {
-                            is_actually_ready = false;
-                        }
                     }
 
                     if (is_actually_ready)

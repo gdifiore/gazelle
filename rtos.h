@@ -4,12 +4,13 @@
 #include "types.h"
 #include <avr/io.h>
 
-#define MAX_SEMAPHORES 2
+#define MAX_TASKS 5
 
 typedef enum
 {
     TASK_READY,
-    TASK_SLEEPING
+    TASK_SLEEPING,
+    TASK_BLOCKED
 } TaskState;
 
 typedef enum
@@ -27,9 +28,13 @@ typedef enum
     IDLE = 3
 } TaskPriority;
 
-typedef struct
-{
-    uint8_t available; // 0 = taken, 1 = available
+#define MAX_SEMAPHORES 2
+#define MAX_WAITERS_PER_SEM MAX_TASKS
+
+typedef struct {
+    uint8_t available;  // 0 = taken, 1 = available
+    uint8_t wait_queue[MAX_WAITERS_PER_SEM];
+    uint8_t wait_count;
 } Semaphore;
 
 extern volatile uint32_t system_ticks;
@@ -40,7 +45,7 @@ void rtos_start(void);
 void rtos_delay(uint16_t ms);
 void rtos_sleep_ticks(uint32_t ticks);
 void rtos_sem_init(uint8_t sem_id, uint8_t initial_value);
-void rtos_sem_acquire(uint8_t sem_id);
+__bool rtos_sem_acquire(uint8_t sem_id);
 void rtos_sem_release(uint8_t sem_id);
 
 #endif

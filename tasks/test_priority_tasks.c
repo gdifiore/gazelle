@@ -57,15 +57,19 @@ void sem_holder_task(void)
     rtos_sem_acquire(SEM_IPC);
     tinylibc_printf("SEM_HOLDER: Acquired SEM_IPC! Holding... (Tick: %u)\n", system_ticks);
     rtos_sleep_ticks(70); // Hold semaphore for some time
-    rtos_sem_release(SEM_IPC);
-    tinylibc_printf("SEM_HOLDER: Released SEM_IPC (Tick: %u)\n", system_ticks);
+    // Comment out release to simulate non-relase of critical section
+    //rtos_sem_release(SEM_IPC);
+    //tinylibc_printf("SEM_HOLDER: Released SEM_IPC (Tick: %u)\n", system_ticks);
     rtos_sleep_ticks(10); // Sleep before trying again or finishing
 }
 
 void sem_waiter_task(void)
 {
     tinylibc_printf("SEM_WAITER: Trying to acquire SEM_IPC (Tick: %u)\n", system_ticks);
-    rtos_sem_acquire(SEM_IPC);
+    while (!rtos_sem_acquire(SEM_IPC))
+    {
+        rtos_sleep_ticks(1); // Yield control and wait
+    }
     tinylibc_printf("SEM_WAITER: Acquired SEM_IPC! (Tick: %u)\n", system_ticks);
     rtos_sem_release(SEM_IPC);
     tinylibc_printf("SEM_WAITER: Released SEM_IPC (Tick: %u)\n", system_ticks);
