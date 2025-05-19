@@ -3,12 +3,12 @@ BYO RTOS targeting the Arduino Nano's ATmega328 processor
 
 **Implement List**
 - [x] tasks & basic scheduler
-- [ ] better scheduler
+- [x] ~~better scheduler~~ Priority-Based Round Robin Scheduler
 - [x] idle task
 - [x] UART output
 - [ ] IPC
 - [x] timing
-- [ ] memory management
+- [ ] memory management?
 
 ## Pre-Requisites
 `sudo apt install gcc-avr avr-libc avrdude simavr libsimavr-dev`
