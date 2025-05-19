@@ -56,3 +56,6 @@ debug/
 release/
 .vscode/
 header_template.txt
+*design*.md
+*DESIGN*.md
+test.txt

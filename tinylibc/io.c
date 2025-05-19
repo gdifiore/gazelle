@@ -27,6 +27,11 @@ void tinylibc_printf(const char *fmt, ...) {
                 char buf[12];
                 tinylibc_itoa(n, buf, 10);
                 tinylibc_puts(buf);
+            } else if (*fmt == 'u') {
+                unsigned int n = va_arg(args, unsigned int);
+                char buf[12];
+                tinylibc_itoa(n, buf, 10);
+                tinylibc_puts(buf);
             } else if (*fmt == 'x') {
                 unsigned int n = va_arg(args, unsigned int);
                 char buf[12];

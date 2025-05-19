@@ -14,6 +14,7 @@
  * Notes:
  *   This is a simple demo task that prints "Task 1" and then
  *   delays for 100ms before returning to the scheduler.
+ *   Uses a semaphore to ensure exclusive UART access.
  ******************************************************************************/
 
 #include "../tasks.h"
@@ -22,6 +23,8 @@
 
 void task1(void)
 {
+    rtos_sem_acquire(SEM_UART);
     tinylibc_printf("Task 1\n");
+    rtos_sem_release(SEM_UART);
     rtos_sleep_ticks(100);
 }

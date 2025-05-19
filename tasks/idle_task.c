@@ -15,11 +15,13 @@
 
 #include "../tasks.h"
 #include "../rtos.h"
+#include "../tinylibc/io.h"
 
 void idle_task(void)
 {
     // TODO: Enter into sleep mode
 
     // Minimal idle task: yield immediately to keep scheduler responsive
+    tinylibc_printf("IDLE\n");
     rtos_sleep_ticks(1);
 }
