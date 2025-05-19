@@ -5,6 +5,8 @@
 #include <util/delay.h>
 #include "rtos.h"
 
+void idle_task(void);
+
 void task1(void);
 void task2(void);
 

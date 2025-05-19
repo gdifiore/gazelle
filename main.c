@@ -33,7 +33,5 @@ int main(void)
 
     rtos_start();
 
-    while (1)
-    {
-    }
+    return 0;
 }
