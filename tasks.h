@@ -22,6 +22,11 @@ void low_prio_task_1(void);
 
 void sem_holder_task(void);
 void sem_waiter_task(void);
+
+// IPC Test Tasks
+void ipc_producer_task(void);
+void ipc_consumer_task(void);
+
 // END Scheduling Test Tasks
 
 #endif

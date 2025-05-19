@@ -6,26 +6,30 @@
 
 #define MAX_SEMAPHORES 2
 
-typedef enum {
+typedef enum
+{
     TASK_READY,
     TASK_SLEEPING
 } TaskState;
 
-typedef enum {
+typedef enum
+{
     SEM_UART,
     SEM_IPC
 } Semaphores;
 
 // Task priorities: lower value = higher priority
-typedef enum {
+typedef enum
+{
     HIGH = 0,
     MEDIUM = 1,
     LOW = 2,
     IDLE = 3
 } TaskPriority;
 
-typedef struct {
-    uint8_t available;  // 0 = taken, 1 = available
+typedef struct
+{
+    uint8_t available; // 0 = taken, 1 = available
 } Semaphore;
 
 extern volatile uint32_t system_ticks;

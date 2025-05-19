@@ -22,6 +22,11 @@ void idle_task(void)
     // TODO: Enter into sleep mode
 
     // Minimal idle task: yield immediately to keep scheduler responsive
-    tinylibc_printf("IDLE\n");
+    static uint8_t counter = 0;
+    if (counter++ % 10 == 0)
+    {
+        tinylibc_printf("IDLE (Tick: %u)\n", system_ticks);
+    }
+
     rtos_sleep_ticks(1);
 }

@@ -18,18 +18,21 @@
 #include "rtos.h"
 #include "tasks.h"
 #include "uart.h"
+#include "ipc.h"
 #include "tinylibc/tinylibc.h"
 
 int main(void)
 {
-    uart_init();                 // Initialize UART and enable global interrupts
     rtos_init();
 
-    rtos_sem_init(SEM_UART, 1);  // Initialize UART semaphore as available
-    rtos_sem_init(SEM_IPC, 1);   // Initialize IPC semaphore as available (not used yet)
+    uart_init(); // Initialize UART and enable global interrupts
+    ipc_init();  // Initialize IPC via shared memory
 
-    //rtos_create_task(task1, MEDIUM);
-    //rtos_create_task(task2, MEDIUM);
+    rtos_sem_init(SEM_UART, 1); // Initialize UART semaphore as available
+    rtos_sem_init(SEM_IPC, 1);  // Initialize IPC semaphore as available
+
+    // rtos_create_task(task1, MEDIUM);
+    // rtos_create_task(task2, MEDIUM);
 
     /*
     Test Scenario 1: Round-Robin at Same Priority (Medium)
@@ -59,12 +62,12 @@ int main(void)
 
     Expected: H_A and H_B should round-robin.
     M_X and M_Y should only run when both H_A and H_B are sleeping, and then M_X and M_Y should round-robin.
-    */
+
     rtos_create_task(high_prio_task_A, HIGH);
     rtos_create_task(high_prio_task_B, HIGH);
     rtos_create_task(medium_prio_task_X, MEDIUM);
     rtos_create_task(medium_prio_task_Y, MEDIUM);
-
+    */
 
     /*
     Test Scenario 4: Semaphore Blocking and Round-Robin
@@ -88,6 +91,16 @@ int main(void)
 
     rtos_create_task(high_prio_task_A, HIGH); // This task sleeps for a while
     */
+
+    /*
+    Test Scenario 6: Shared Memory IPC
+
+    Expected: Producer writes data to the shared buffer, Consumer reads it.
+    Both tasks run at HIGH priority to show round-robin behavior when ready.
+    Output should show interleaved PRODUCER and CONSUMER messages.
+    */
+    rtos_create_task(ipc_producer_task, HIGH);
+    rtos_create_task(ipc_consumer_task, HIGH);
 
     rtos_start();
 

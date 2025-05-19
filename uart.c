@@ -15,7 +15,6 @@
  *   - Polling used for transmit.
  ******************************************************************************/
 
-
 #include <avr/io.h>
 #include "uart.h"
 #include <util/setbaud.h>
@@ -37,7 +36,6 @@ void uart_init(void)
     uart_buffer_init();
     sei(); // Enable global interrupts
 }
-
 
 void uart_transmit(uint8_t data)
 {
@@ -68,6 +66,7 @@ void uart_receive_burst(uint8_t *data, size_t len)
         *data++ = uart_receive();
 }
 
-ISR(USART_RX_vect) {
-    uart_buffer_put(UDR0);  // read byte and enqueue into ring buffer
+ISR(USART_RX_vect)
+{
+    uart_buffer_put(UDR0); // read byte and enqueue into ring buffer
 }

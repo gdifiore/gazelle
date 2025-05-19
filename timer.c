@@ -16,26 +16,32 @@
 
 static void (*user_callback)(void) = 0;
 
-void timer_init(uint16_t tick_hz) {
-    TCCR1A = 0; // Normal mode
-    TCCR1B = (1 << WGM12); // CTC mode
+void timer_init(uint16_t tick_hz)
+{
+    TCCR1A = 0;                           // Normal mode
+    TCCR1B = (1 << WGM12);                // CTC mode
     OCR1A = (F_CPU / 1024 / tick_hz) - 1; // Match for desired tick rate
-    TIMSK1 |= (1 << OCIE1A); // Enable Compare A interrupt
+    TIMSK1 |= (1 << OCIE1A);              // Enable Compare A interrupt
 }
 
-void timer_start(void) {
+void timer_start(void)
+{
     TCNT1 = 0;
     TCCR1B |= (1 << CS12) | (1 << CS10); // Prescaler 1024
 }
 
-void timer_stop(void) {
+void timer_stop(void)
+{
     TCCR1B &= ~((1 << CS12) | (1 << CS10)); // Stop timer
 }
 
-void timer_set_callback(void (*callback)(void)) {
+void timer_set_callback(void (*callback)(void))
+{
     user_callback = callback;
 }
 
-ISR(TIMER1_COMPA_vect) {
-    if (user_callback) user_callback();
+ISR(TIMER1_COMPA_vect)
+{
+    if (user_callback)
+        user_callback();
 }

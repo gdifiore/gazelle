@@ -9,7 +9,7 @@ BAUD = 115200
 TARGET = gazelle
 
 # Source files
-SRC = main.c rtos.c uart.c timer.c uart_buffer.c \
+SRC = main.c rtos.c uart.c timer.c uart_buffer.c ipc.c \
 		tinylibc/conv.c tinylibc/debug.c tinylibc/io.c tinylibc/string.c \
 		tasks/idle_task.c tasks/task1.c tasks/task2.c tasks/test_priority_tasks.c
 

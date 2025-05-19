@@ -23,13 +23,14 @@
 
 volatile uint32_t system_ticks = 0;
 
-typedef struct {
+typedef struct
+{
     void (*fn)(void);
     TaskPriority priority;
     uint32_t wake_tick;
     TaskState state;
     bool is_idle;
-    uint8_t waiting_on_sem;  // Semaphore ID the task is waiting on (0xFF if none)
+    uint8_t waiting_on_sem; // Semaphore ID the task is waiting on (0xFF if none)
 } Task;
 
 #define MAX_TASKS 5
@@ -40,15 +41,18 @@ static Semaphore semaphores[MAX_SEMAPHORES];
 
 static int rr_next_idx_at_priority[IDLE + 1]; // Size based on the number of priority levels
 
-void rtos_init(void) {
+void rtos_init(void)
+{
     task_count = 0;
-    for (int i = 0; i < MAX_TASKS; i++) {
+    for (int i = 0; i < MAX_TASKS; i++)
+    {
         tasks[i].state = TASK_READY;
         tasks[i].wake_tick = 0;
         tasks[i].is_idle = false;
-        tasks[i].waiting_on_sem = 0xFF;  // No semaphore
+        tasks[i].waiting_on_sem = 0xFF; // No semaphore
     }
-    for (int i = 0; i < MAX_SEMAPHORES; i++) {
+    for (int i = 0; i < MAX_SEMAPHORES; i++)
+    {
         semaphores[i].available = 0; // Initialize to taken
     }
     // Create idle task
@@ -59,20 +63,25 @@ void rtos_init(void) {
     task_count = 1;
 
     // Initialize round-robin indices
-    for (int i = 0; i <= IDLE; i++) {
+    for (int i = 0; i <= IDLE; i++)
+    {
         // Iterate through all valid priority values HIGH, MEDIUM, LOW, IDLE
         rr_next_idx_at_priority[i] = 0;
     }
 }
 
-void rtos_create_task(void (*task_fn)(void), TaskPriority task_priority) {
-    if (task_count >= MAX_TASKS) {
+void rtos_create_task(void (*task_fn)(void), TaskPriority task_priority)
+{
+    if (task_count >= MAX_TASKS)
+    {
         tinylibc_panic("Max tasks exceeded");
     }
-    if (task_priority > IDLE) {
+    if (task_priority > IDLE)
+    {
         tinylibc_panic("Invalid task priority");
     }
-    if (task_count < MAX_TASKS) {
+    if (task_count < MAX_TASKS)
+    {
         tasks[task_count].fn = task_fn;
         tasks[task_count].priority = task_priority;
         tasks[task_count].wake_tick = 0;
@@ -83,73 +92,97 @@ void rtos_create_task(void (*task_fn)(void), TaskPriority task_priority) {
     }
 }
 
-void rtos_delay(uint16_t ms) {
-    while (ms--) _delay_ms(1);
+void rtos_delay(uint16_t ms)
+{
+    while (ms--)
+        _delay_ms(1);
 }
 
-static void tick_isr_callback(void) {
+static void tick_isr_callback(void)
+{
     system_ticks++;
 }
 
-void rtos_sem_init(uint8_t sem_id, uint8_t initial_value) {
-    if (sem_id < MAX_SEMAPHORES) {
+void rtos_sem_init(uint8_t sem_id, uint8_t initial_value)
+{
+    if (sem_id < MAX_SEMAPHORES)
+    {
         semaphores[sem_id].available = (initial_value > 0) ? 1 : 0;
-    } else {
+    }
+    else
+    {
         tinylibc_panic("Invalid semaphore ID");
     }
 }
 
-void rtos_sem_acquire(uint8_t sem_id) {
-    if (sem_id >= MAX_SEMAPHORES) {
+void rtos_sem_acquire(uint8_t sem_id)
+{
+    if (sem_id >= MAX_SEMAPHORES)
+    {
         tinylibc_panic("Invalid semaphore ID");
     }
-    if (semaphores[sem_id].available) {
-        semaphores[sem_id].available = 0;  // Take semaphore
-        tasks[current_task_index].waiting_on_sem = 0xFF;  // Clear waiting state
+    if (semaphores[sem_id].available)
+    {
+        semaphores[sem_id].available = 0;                // Take semaphore
+        tasks[current_task_index].waiting_on_sem = 0xFF; // Clear waiting state
         tasks[current_task_index].state = TASK_READY;
-    } else {
-        tasks[current_task_index].waiting_on_sem = sem_id;  // Mark task as waiting
+    }
+    else
+    {
+        tasks[current_task_index].waiting_on_sem = sem_id; // Mark task as waiting
         tasks[current_task_index].state = TASK_SLEEPING;
-        tasks[current_task_index].wake_tick = system_ticks + 1;  // Retry after 1 tick
+        tasks[current_task_index].wake_tick = system_ticks + 1; // Retry after 1 tick
     }
 }
 
-void rtos_sem_release(uint8_t sem_id) {
-    if (sem_id >= MAX_SEMAPHORES) {
+void rtos_sem_release(uint8_t sem_id)
+{
+    if (sem_id >= MAX_SEMAPHORES)
+    {
         tinylibc_panic("Invalid semaphore ID");
     }
-    semaphores[sem_id].available = 1;  // Release semaphore
+    semaphores[sem_id].available = 1; // Release semaphore
 }
 
-void rtos_start(void) {
+void rtos_start(void)
+{
     timer_init(1000); // 1ms tick
     timer_set_callback(tick_isr_callback);
     timer_start();
 
-    while (1) {
+    while (1)
+    {
         TaskPriority highest_ready_priority = IDLE + 1;
         int selected_task_idx = -1;
 
         // Determine the highest priority level of any task that is ready to run
-        for (int i = 0; i < task_count; i++) {
-            Task* task = &tasks[i];
+        for (int i = 0; i < task_count; i++)
+        {
+            Task *task = &tasks[i];
 
             bool is_actually_ready = false;
-            if (task->state == TASK_READY) {
+            if (task->state == TASK_READY)
+            {
                 is_actually_ready = true;
-            } else if (task->state == TASK_SLEEPING && system_ticks >= task->wake_tick) {
+            }
+            else if (task->state == TASK_SLEEPING && system_ticks >= task->wake_tick)
+            {
                 is_actually_ready = true;
             }
 
             // If it seems ready, check if it's blocked by a semaphore it's waiting on
-            if (is_actually_ready && task->waiting_on_sem != 0xFF) {
-                if (!semaphores[task->waiting_on_sem].available) {
+            if (is_actually_ready && task->waiting_on_sem != 0xFF)
+            {
+                if (!semaphores[task->waiting_on_sem].available)
+                {
                     is_actually_ready = false; // Still blocked by semaphore
                 }
             }
 
-            if (is_actually_ready) {
-                if (task->priority < highest_ready_priority) {
+            if (is_actually_ready)
+            {
+                if (task->priority < highest_ready_priority)
+                {
                     highest_ready_priority = task->priority;
                 }
             }
@@ -158,30 +191,39 @@ void rtos_start(void) {
         // If highest_ready_priority is still IDLE + 1, no task is ready
 
         // Find the next task to run at 'highest_ready_priority' using round-robin
-        if (highest_ready_priority <= IDLE) {
+        if (highest_ready_priority <= IDLE)
+        {
             // A valid priority level was found (HIGH, MEDIUM, LOW, or IDLE)
             int search_start_idx = rr_next_idx_at_priority[highest_ready_priority];
 
             // Iterate at most 'task_count' times to check all tasks, starting from 'search_start_idx'
-            for (int i = 0; i < task_count; i++) {
+            for (int i = 0; i < task_count; i++)
+            {
                 int current_check_idx = (search_start_idx + i) % task_count;
-                Task* task = &tasks[current_check_idx];
+                Task *task = &tasks[current_check_idx];
 
-                if (task->priority == highest_ready_priority) {
+                if (task->priority == highest_ready_priority)
+                {
                     bool is_actually_ready = false;
-                    if (task->state == TASK_READY) {
+                    if (task->state == TASK_READY)
+                    {
                         is_actually_ready = true;
-                    } else if (task->state == TASK_SLEEPING && system_ticks >= task->wake_tick) {
+                    }
+                    else if (task->state == TASK_SLEEPING && system_ticks >= task->wake_tick)
+                    {
                         is_actually_ready = true;
                     }
 
-                    if (is_actually_ready && task->waiting_on_sem != 0xFF) {
-                         if (!semaphores[task->waiting_on_sem].available) {
+                    if (is_actually_ready && task->waiting_on_sem != 0xFF)
+                    {
+                        if (!semaphores[task->waiting_on_sem].available)
+                        {
                             is_actually_ready = false;
                         }
                     }
 
-                    if (is_actually_ready) {
+                    if (is_actually_ready)
+                    {
                         selected_task_idx = current_check_idx;
                         // Update the starting point for the next round-robin scan at this priority
                         rr_next_idx_at_priority[highest_ready_priority] = (current_check_idx + 1) % task_count;
@@ -193,36 +235,44 @@ void rtos_start(void) {
 
         // Fallback to Idle Task if no other task was selected
         // Happens if no are tasks ready or if all tasks at 'highest_ready_priority' were not actually runnable (e.g. all sleeping/waiting)
-        if (selected_task_idx == -1) {
-            for (int i = 0; i < task_count; i++) {
-                if (tasks[i].is_idle) {
+        if (selected_task_idx == -1)
+        {
+            for (int i = 0; i < task_count; i++)
+            {
+                if (tasks[i].is_idle)
+                {
                     // Ensure idle task is runnable if it was sleeping
-                    if (tasks[i].state == TASK_SLEEPING && system_ticks >= tasks[i].wake_tick) {
+                    if (tasks[i].state == TASK_SLEEPING && system_ticks >= tasks[i].wake_tick)
+                    {
                         tasks[i].state = TASK_READY;
                         tasks[i].wake_tick = 0;
                     }
                     // The idle task should generally always be in TASK_READY unless it explicitly sleeps
-                    if(tasks[i].state == TASK_READY) {
+                    if (tasks[i].state == TASK_READY)
+                    {
                         selected_task_idx = i;
                         break;
                     }
                 }
             }
             // If still -1, and we must run something (assuming task[0] is always the idle_task and must be runnable)
-            if (selected_task_idx == -1 && task_count > 0 && tasks[0].is_idle) {
-                 tasks[0].state = TASK_READY; // Force idle to be ready
-                 tasks[0].wake_tick = 0;
-                 selected_task_idx = 0;
+            if (selected_task_idx == -1 && task_count > 0 && tasks[0].is_idle)
+            {
+                tasks[0].state = TASK_READY; // Force idle to be ready
+                tasks[0].wake_tick = 0;
+                selected_task_idx = 0;
             }
         }
 
         // Run the selected task
-        if (selected_task_idx != -1) {
+        if (selected_task_idx != -1)
+        {
             current_task_index = selected_task_idx;
-            Task* task_to_run = &tasks[current_task_index];
+            Task *task_to_run = &tasks[current_task_index];
 
             // If the task was sleeping and is now waking up
-            if (task_to_run->state == TASK_SLEEPING) {
+            if (task_to_run->state == TASK_SLEEPING)
+            {
                 // Condition (system_ticks >= task_to_run->wake_tick) was met above
                 task_to_run->state = TASK_READY;
                 task_to_run->wake_tick = 0; // Clear wake tick
@@ -236,17 +286,21 @@ void rtos_start(void) {
             // The scheduler just ensures it gets a chance to run if it's not blocked.
 
             task_to_run->fn();
-        } else {
+        }
+        else
+        {
             // Should not be reached if an idle task exists and is always made schedulable
             // Critical error: no task could be scheduled
             // TODO: reset?
             tinylibc_panic("Critical Error: No task to schedule.");
-             while(1); // Halt - system cannot proceed
+            while (1)
+                ; // Halt - system cannot proceed
         }
     }
 }
 
-void rtos_sleep_ticks(uint32_t ticks) {
+void rtos_sleep_ticks(uint32_t ticks)
+{
     tasks[current_task_index].wake_tick = system_ticks + ticks;
     tasks[current_task_index].state = TASK_SLEEPING;
 }

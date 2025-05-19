@@ -1,26 +1,45 @@
 #include "string.h"
 
-size_t tinylibc_strlen(const char *s) {
+size_t tinylibc_strlen(const char *s)
+{
     size_t len = 0;
-    while (s[len]) len++;
+    while (s[len])
+        len++;
     return len;
 }
 
-int tinylibc_strcmp(const char *a, const char *b) {
-    while (*a && (*a == *b)) {
-        a++; b++;
+int tinylibc_strcmp(const char *a, const char *b)
+{
+    while (*a && (*a == *b))
+    {
+        a++;
+        b++;
     }
     return *(unsigned char *)a - *(unsigned char *)b;
 }
 
-char *tinylibc_strcpy(char *dest, const char *src) {
+char *tinylibc_strcpy(char *dest, const char *src)
+{
     char *ret = dest;
-    while ((*dest++ = *src++));
+    while ((*dest++ = *src++))
+        ;
     return ret;
 }
 
-void *tinylibc_memset(void *dest, int val, size_t n) {
+char *tinylibc_strcat(char *dest, const char *src)
+{
+    char *ret = dest;
+    while (*dest)
+        dest++;
+    while ((*dest++ = *src++))
+        ;
+    return ret;
+}
+
+void *tinylibc_memset(void *dest, int val, size_t n)
+{
     unsigned char *p = dest;
-    while (n--) *p++ = (unsigned char)val;
+    while (n--)
+        *p++ = (unsigned char)val;
     return dest;
 }
