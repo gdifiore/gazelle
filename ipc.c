@@ -36,11 +36,8 @@ __bool ipc_write(const char *data, uint8_t len)
         return false;
     }
 
-    rtos_sem_acquire(SEM_IPC);
-
     if (shm.count >= IPC_BUFFER_SIZE)
     {
-        rtos_sem_release(SEM_IPC);
         tinylibc_printf("IPC: Write failed, buffer full\n");
         return false;
     }
@@ -50,17 +47,14 @@ __bool ipc_write(const char *data, uint8_t len)
     shm.head = (shm.head + 1) % IPC_BUFFER_SIZE;
     shm.count++;
 
-    rtos_sem_release(SEM_IPC);
     return true;
 }
 
 __bool ipc_read(char *data, uint8_t max_len, uint8_t *out_len)
 {
-    rtos_sem_acquire(SEM_IPC);
 
     if (shm.count == 0)
     {
-        rtos_sem_release(SEM_IPC);
         tinylibc_printf("IPC: Read failed, buffer empty\n");
         return false;
     }
@@ -69,7 +63,6 @@ __bool ipc_read(char *data, uint8_t max_len, uint8_t *out_len)
     *out_len = tinylibc_strlen(shm.buffer[shm.tail]);
     if (*out_len > max_len)
     {
-        rtos_sem_release(SEM_IPC);
         tinylibc_printf("IPC: Read failed, output buffer too small (%u > %u)\n", *out_len, max_len);
         return false;
     }
@@ -78,6 +71,5 @@ __bool ipc_read(char *data, uint8_t max_len, uint8_t *out_len)
     shm.tail = (shm.tail + 1) % IPC_BUFFER_SIZE;
     shm.count--;
 
-    rtos_sem_release(SEM_IPC);
     return true;
 }

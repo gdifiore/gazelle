@@ -50,32 +50,6 @@ void low_prio_task_1(void)
     rtos_sleep_ticks(100);
 }
 
-// Semaphore Test Tasks
-void sem_holder_task(void)
-{
-    tinylibc_printf("SEM_HOLDER: Trying to acquire SEM_IPC (Tick: %u)\n", system_ticks);
-    rtos_sem_acquire(SEM_IPC);
-    tinylibc_printf("SEM_HOLDER: Acquired SEM_IPC! Holding... (Tick: %u)\n", system_ticks);
-    rtos_sleep_ticks(70); // Hold semaphore for some time
-    // Comment out release to simulate non-relase of critical section
-    //rtos_sem_release(SEM_IPC);
-    //tinylibc_printf("SEM_HOLDER: Released SEM_IPC (Tick: %u)\n", system_ticks);
-    rtos_sleep_ticks(10); // Sleep before trying again or finishing
-}
-
-void sem_waiter_task(void)
-{
-    tinylibc_printf("SEM_WAITER: Trying to acquire SEM_IPC (Tick: %u)\n", system_ticks);
-    while (!rtos_sem_acquire(SEM_IPC))
-    {
-        rtos_sleep_ticks(1); // Yield control and wait
-    }
-    tinylibc_printf("SEM_WAITER: Acquired SEM_IPC! (Tick: %u)\n", system_ticks);
-    rtos_sem_release(SEM_IPC);
-    tinylibc_printf("SEM_WAITER: Released SEM_IPC (Tick: %u)\n", system_ticks);
-    rtos_sleep_ticks(15);
-}
-
 // IPC Test Tasks
 void ipc_producer_task(void)
 {
@@ -86,15 +60,11 @@ void ipc_producer_task(void)
     tinylibc_itoa(counter++, num_buf, 10);
     tinylibc_strcat(data, num_buf);
 
-    rtos_sem_acquire(SEM_UART);
     tinylibc_printf("PRODUCER: Writing '%s' (Tick: %u)\n", data, system_ticks);
-    rtos_sem_release(SEM_UART);
 
     if (ipc_write(data, tinylibc_strlen(data) + 1))
     {
-        rtos_sem_acquire(SEM_UART);
         tinylibc_printf("PRODUCER: Write successful (Tick: %u)\n", system_ticks);
-        rtos_sem_release(SEM_UART);
     }
     rtos_sleep_ticks(50); // Simulate work and allow consumer to run
 }
@@ -103,11 +73,10 @@ void ipc_consumer_task(void)
 {
     char data[IPC_DATA_SIZE];
     uint8_t len;
+
     if (ipc_read(data, IPC_DATA_SIZE, &len))
     {
-        rtos_sem_acquire(SEM_UART);
         tinylibc_printf("CONSUMER: Read '%s' (len=%u, Tick: %u)\n", data, len, system_ticks);
-        rtos_sem_release(SEM_UART);
     }
     rtos_sleep_ticks(60); // Simulate work and allow producer to run
 }

@@ -23,8 +23,7 @@
 
 void task1(void)
 {
-    rtos_sem_acquire(SEM_UART);
     tinylibc_printf("Task 1\n");
-    rtos_sem_release(SEM_UART);
+
     rtos_sleep_ticks(100);
 }
