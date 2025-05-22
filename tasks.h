@@ -1,9 +1,9 @@
 #ifndef TASKS_H
 #define TASKS_H
 
+#include "rtos.h"
 #include <avr/io.h>
 #include <util/delay.h>
-#include "rtos.h"
 
 void idle_task(void);
 
@@ -28,5 +28,8 @@ void ipc_producer_task(void);
 void ipc_consumer_task(void);
 
 // END Scheduling Test Tasks
+
+// UART Input Test Task
+void uart_input_task(void);
 
 #endif

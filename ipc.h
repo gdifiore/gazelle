@@ -3,6 +3,7 @@
 
 #include "types.h"
 #include "rtos.h"
+#include "stdbool.h"
 
 #define IPC_BUFFER_SIZE 16 // Small size due to ATmega328P's 2KB SRAM
 #define IPC_DATA_SIZE 32   // Max size of each data item
@@ -16,7 +17,7 @@ typedef struct
 } SharedMemory;
 
 void ipc_init(void);
-__bool ipc_write(const char *data, uint8_t len);
-__bool ipc_read(char *data, uint8_t max_len, uint8_t *out_len);
+bool ipc_write(const char *data, uint8_t len);
+bool ipc_read(char *data, uint8_t max_len, uint8_t *out_len);
 
 #endif // IPC_H

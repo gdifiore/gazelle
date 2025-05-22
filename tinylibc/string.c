@@ -1,3 +1,21 @@
+/*******************************************************************************
+ * File: string.c
+ *
+ * Description:
+ *   String manipulation functions for the tinylibc library. Provides minimal
+ *   implementations of strlen, strcmp, strcpy, strcat, and memset.
+ *
+ * Author: Gabe DiFiore
+ * Created: 2025-05-14
+ *
+ * Target MCU: ATmega328P
+ * Toolchain: avr-gcc, avr-libc
+ * Platform: Arduino Nano (bare-metal)
+ *
+ * Notes:
+ *   - Designed for minimal memory usage on resource-constrained devices.
+ ******************************************************************************/
+
 #include "string.h"
 
 size_t tinylibc_strlen(const char *s)
@@ -23,6 +41,19 @@ char *tinylibc_strcpy(char *dest, const char *src)
     char *ret = dest;
     while ((*dest++ = *src++))
         ;
+    return ret;
+}
+
+char *tinylibc_strncpy(char *dest, const char *src, size_t n)
+{
+    char *ret = dest;
+    size_t i;
+    for (i = 0; i < n && src[i]; i++) {
+        dest[i] = src[i];
+    }
+    for (; i < n; i++) {
+        dest[i] = '\0';
+    }
     return ret;
 }
 

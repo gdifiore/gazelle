@@ -13,13 +13,13 @@
  * Platform: Arduino Nano (bare-metal)
  ******************************************************************************/
 
-#include <avr/io.h>
-#include <util/delay.h>
 #include "rtos.h"
 #include "tasks.h"
 #include "uart.h"
 #include "ipc.h"
 #include "tinylibc/tinylibc.h"
+#include <avr/io.h>
+#include <util/delay.h>
 
 int main(void)
 {

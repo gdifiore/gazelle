@@ -1,3 +1,22 @@
+/*******************************************************************************
+ * File: uart_buffer.c
+ *
+ * Description:
+ *   Ring buffer implementation for UART receive operations. Stores incoming UART
+ *   data in a circular buffer for interrupt-driven reception.
+ *
+ * Author: Gabe DiFiore
+ * Created: 2025-05-19
+ *
+ * Target MCU: ATmega328P
+ * Toolchain: avr-gcc, avr-libc
+ * Platform: Arduino Nano (bare-metal)
+ *
+ * Notes:
+ *   - Used in conjunction with the UART driver for interrupt-driven RX.
+ *   - Drops data on buffer overflow.
+ ******************************************************************************/
+
 #include "uart_buffer.h"
 
 #define UART_BUFFER_SIZE 64

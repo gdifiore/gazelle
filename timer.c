@@ -10,9 +10,9 @@
  * Created: 2025-05-19
  ******************************************************************************/
 
+#include "timer.h"
 #include <avr/io.h>
 #include <avr/interrupt.h>
-#include "timer.h"
 
 static void (*user_callback)(void) = 0;
 

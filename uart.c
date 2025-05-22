@@ -15,11 +15,11 @@
  *   - Polling used for transmit.
  ******************************************************************************/
 
-#include <avr/io.h>
 #include "uart.h"
+#include "uart_buffer.h"
+#include <avr/io.h>
 #include <util/setbaud.h>
 #include <avr/interrupt.h>
-#include "uart_buffer.h"
 
 void uart_init(void)
 {

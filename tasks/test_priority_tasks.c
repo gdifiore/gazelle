@@ -80,3 +80,15 @@ void ipc_consumer_task(void)
     }
     rtos_sleep_ticks(60); // Simulate work and allow producer to run
 }
+
+void uart_input_task(void)
+{
+    if (uart_available())
+    {
+        uint8_t c = uart_read();
+        tinylibc_printf("UART_INPUT: Received '%c' (Tick: %u)\n", c, system_ticks);
+        // Echo the character back
+        uart_transmit(c);
+    }
+    rtos_sleep_ticks(10); // Brief sleep to yield control and check frequently
+}

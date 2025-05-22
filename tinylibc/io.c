@@ -1,4 +1,24 @@
+/*******************************************************************************
+ * File: io.c
+ *
+ * Description:
+ *   Input/output functions for the tinylibc library. Provides UART-based
+ *   character and string output, including a printf-like function.
+ *
+ * Author: Gabe DiFiore
+ * Created: 2025-05-14
+ *
+ * Target MCU: ATmega328P
+ * Toolchain: avr-gcc, avr-libc
+ * Platform: Arduino Nano (bare-metal)
+ *
+ * Notes:
+ *   - Relies on the UART driver for output operations.
+ *   - Supports basic format specifiers (%d, %u, %x, %s, %%).
+ ******************************************************************************/
+
 #include "io.h"
+#include "conv.h"
 #include "../uart.h"
 
 void tinylibc_putchar(char c)
@@ -15,9 +35,6 @@ void tinylibc_puts(const char *s)
     while (*s)
         tinylibc_putchar(*s++);
 }
-
-#include "conv.h"
-#include <stdarg.h>
 
 void tinylibc_printf(const char *fmt, ...)
 {

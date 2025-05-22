@@ -28,11 +28,28 @@ void ipc_init(void)
     tinylibc_memset(shm.buffer, 0, IPC_BUFFER_SIZE * IPC_DATA_SIZE);
 }
 
-__bool ipc_write(const char *data, uint8_t len)
+bool ipc_write(const char *data, uint8_t len)
 {
-    if (len > IPC_DATA_SIZE)
+    // Check if len exceeds IPC_DATA_SIZE (including null terminator)
+    if (len >= IPC_DATA_SIZE)
     {
-        tinylibc_printf("IPC: Write failed, data too large (%u > %u)\n", len, IPC_DATA_SIZE);
+        tinylibc_printf("IPC: Write failed, data length %u >= %u (max including null)\n", len, IPC_DATA_SIZE);
+        return false;
+    }
+
+    // Check if data is null-terminated within len
+    bool null_terminated = false;
+    for (uint8_t i = 0; i < len; i++)
+    {
+        if (data[i] == '\0')
+        {
+            null_terminated = true;
+            break;
+        }
+    }
+    if (!null_terminated)
+    {
+        tinylibc_printf("IPC: Write failed, data not null-terminated within %u bytes\n", len);
         return false;
     }
 
@@ -42,32 +59,32 @@ __bool ipc_write(const char *data, uint8_t len)
         return false;
     }
 
-    // Copy data to buffer
-    tinylibc_strcpy(shm.buffer[shm.head], data);
+    // Copy data to buffer with bounded copy
+    tinylibc_strncpy(shm.buffer[shm.head], data, IPC_DATA_SIZE);
     shm.head = (shm.head + 1) % IPC_BUFFER_SIZE;
     shm.count++;
 
     return true;
 }
 
-__bool ipc_read(char *data, uint8_t max_len, uint8_t *out_len)
+bool ipc_read(char *data, uint8_t max_len, uint8_t *out_len)
 {
-
     if (shm.count == 0)
     {
         tinylibc_printf("IPC: Read failed, buffer empty\n");
         return false;
     }
 
-    // Copy data from buffer
+    // Compute length of data in buffer
     *out_len = tinylibc_strlen(shm.buffer[shm.tail]);
-    if (*out_len > max_len)
+    if (*out_len >= max_len)
     {
-        tinylibc_printf("IPC: Read failed, output buffer too small (%u > %u)\n", *out_len, max_len);
+        tinylibc_printf("IPC: Read failed, output buffer too small (%u >= %u)\n", *out_len, max_len);
         return false;
     }
 
-    tinylibc_strcpy(data, shm.buffer[shm.tail]);
+    // Copy data from buffer with bounded copy
+    tinylibc_strncpy(data, shm.buffer[shm.tail], max_len);
     shm.tail = (shm.tail + 1) % IPC_BUFFER_SIZE;
     shm.count--;
 

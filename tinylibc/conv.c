@@ -1,3 +1,21 @@
+/*******************************************************************************
+ * File: conv.c
+ *
+ * Description:
+ *   Minimal conversion functions for the tinylibc library. Provides integer-to-string
+ *   and string-to-integer conversion for basic numeric operations.
+ *
+ * Author: Gabe DiFiore
+ * Created: 2025-05-14
+ *
+ * Target MCU: ATmega328P
+ * Toolchain: avr-gcc, avr-libc
+ * Platform: Arduino Nano (bare-metal)
+ *
+ * Notes:
+ *   - Supports decimal and hexadecimal conversion for itoa.
+ ******************************************************************************/
+
 #include "conv.h"
 #include "string.h"
 
