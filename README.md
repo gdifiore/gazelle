@@ -10,7 +10,9 @@ BYO RTOS targeting the Arduino Nano's ATmega328 processor
 - [x] UART output
 - [x] IPC - shared nmemory
 - [x] timing
+- [ ] semaphore (for preemptive scheduling)
 - [ ] memory management?
+- [ ] enum of error types
 
 ## Pre-Requisites
 

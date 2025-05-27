@@ -21,7 +21,6 @@
 
 char *tinylibc_itoa(int val, char *buf, int base)
 {
-    static const char digits[] = "0123456789ABCDEF";
     char *ptr = buf;
     unsigned int u = val;
     if (val < 0 && base == 10)

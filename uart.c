@@ -34,7 +34,6 @@ void uart_init(void)
     UCSR0B |= (1 << RXCIE0);               // Enable RX interrupt
 
     uart_buffer_init();
-    sei(); // Enable global interrupts
 }
 
 void uart_transmit(uint8_t data)
