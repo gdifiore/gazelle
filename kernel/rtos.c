@@ -16,8 +16,9 @@
 
 #include "rtos.h"
 #include "timer.h"
-#include "../tasks/tasks.h"
 #include "../tinylibc/tinylibc.h"
+
+extern void idle_task(void);
 
 volatile uint32_t system_ticks = 0;
 

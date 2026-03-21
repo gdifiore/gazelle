@@ -77,10 +77,7 @@ bool ipc_write(const char *data, uint8_t len)
 bool ipc_read(char *data, uint8_t max_len, uint8_t *out_len)
 {
     if (shm.count == 0)
-    {
-        tinylibc_printf("IPC: Read failed, buffer empty\n");
         return false;
-    }
 
     // Compute length of data in buffer
     *out_len = tinylibc_strlen(shm.buffer[shm.tail]);
