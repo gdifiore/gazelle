@@ -23,10 +23,12 @@
 static volatile uint8_t buffer[UART_BUFFER_SIZE];
 static volatile uint8_t head = 0;
 static volatile uint8_t tail = 0;
+static volatile bool overflow = false;
 
 void uart_buffer_init(void)
 {
     head = tail = 0;
+    overflow = false;
 }
 
 bool uart_available(void)
@@ -51,5 +53,14 @@ void uart_buffer_put(uint8_t data)
         buffer[head] = data;
         head = next;
     }
-    // else: overflow, drop byte
+    else {
+        overflow = true;
+    }
+}
+
+bool uart_buffer_overflow(void)
+{
+    bool status = overflow;
+    overflow = false;
+    return status;
 }
