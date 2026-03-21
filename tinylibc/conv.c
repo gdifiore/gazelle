@@ -29,7 +29,9 @@ char *tinylibc_itoa(int val, char *buf, int base)
         u = -val;
     }
 
-    char tmp[16];
+    char tmp[33];
+    _Static_assert(sizeof(tmp) >= sizeof(unsigned int) * 8 + 1,
+                   "tmp too small for worst-case binary representation of unsigned int");
     int i = 0;
     do
     {
