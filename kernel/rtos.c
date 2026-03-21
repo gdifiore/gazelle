@@ -180,6 +180,12 @@ void rtos_delay(uint16_t ms)
         ; /* Busy-wait; system_ticks increments at 1 kHz */
 }
 
+/*
+ * tick_isr_callback - Increment system_ticks on each SysTick interrupt.
+ *
+ * Registered with timer_set_callback() during rtos_start().  The scheduler
+ * uses system_ticks as its time source for rtos_delay() and sleep/wake.
+ */
 static void tick_isr_callback(void)
 {
     system_ticks++;
