@@ -37,6 +37,12 @@ void timer_set_callback(void (*callback)(void))
     user_callback = callback;
 }
 
+/*
+ * SysTick_Handler - ARM Cortex-M3 SysTick exception handler.
+ *
+ * Invoked by hardware at the rate configured by timer_init().  Forwards to
+ * the user callback registered via timer_set_callback().
+ */
 void SysTick_Handler(void)
 {
     if (user_callback)
