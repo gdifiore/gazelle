@@ -16,6 +16,15 @@
 #include "ipc.h"
 #include "../tinylibc/tinylibc.h"
 
+_Static_assert(IPC_BUFFER_SIZE >= 1,
+               "IPC_BUFFER_SIZE must be at least 1");
+_Static_assert(IPC_BUFFER_SIZE <= 256,
+               "IPC_BUFFER_SIZE must fit in uint8_t index");
+_Static_assert(IPC_DATA_SIZE >= 1,
+               "IPC_DATA_SIZE must be at least 1");
+_Static_assert(IPC_DATA_SIZE <= 256,
+               "IPC_DATA_SIZE must fit in uint8_t length");
+
 static SharedMemory shm;
 
 void ipc_init(void)

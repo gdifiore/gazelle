@@ -4,6 +4,8 @@
 #include <stdint.h>
 #include <stdbool.h>
 
+#define UART_BUFFER_SIZE 64
+
 void uart_buffer_init(void);
 bool uart_available(void);
 uint8_t uart_read(void);
