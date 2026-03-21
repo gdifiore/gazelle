@@ -66,7 +66,7 @@ void rtos_init(void)
 
 bool rtos_create_task(void (*task_fn)(void), TaskPriority task_priority)
 {
-    if (task_count >= MAX_TASKS || task_priority > IDLE)
+    if (!task_fn || task_count >= MAX_TASKS || task_priority > IDLE)
     {
         return false;
     }
