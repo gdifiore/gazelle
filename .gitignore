@@ -54,6 +54,8 @@ dkms.conf
 # gazelle
 debug/
 release/
+tests/test_uart_buffer
+tests/test_ipc
 .vscode/
 header_template.txt
 *design*.md
