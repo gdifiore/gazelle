@@ -17,7 +17,9 @@
 
 #include "uart.h"
 #include "uart_buffer.h"
+#include "../kernel/rtos.h"
 #include "../bsp/hw.h"
+
 
 void uart_init(void)
 {
@@ -63,10 +65,21 @@ void uart_transmit(uint8_t data)
     UART0_DR = data;
 }
 
-uint8_t uart_receive(void)
+int16_t uart_receive(uint32_t timeout_ms)
 {
-    while (UART0_FR & UART_FR_RXFE)
+    if (timeout_ms == 0) {
+        while (UART0_FR & UART_FR_RXFE)
+            ; /* Wait for data in RX FIFO */
+
+        return (uint8_t)UART0_DR;
+    }
+
+    uint32_t start = system_ticks;
+    while ( (UART0_FR & UART_FR_RXFE) && ( (system_ticks - start) < timeout_ms) )
         ; /* Wait for data in RX FIFO */
+
+    if (UART0_FR & UART_FR_RXFE)
+        return -1; // timed out, FIFO still empty
     return (uint8_t)UART0_DR;
 }
 
@@ -79,7 +92,7 @@ void uart_transmit_burst(const uint8_t *data, size_t len)
 void uart_receive_burst(uint8_t *data, size_t len)
 {
     while (len--)
-        *data++ = uart_receive();
+        *data++ = uart_receive(0);
 }
 
 void UART0_Handler(void)
