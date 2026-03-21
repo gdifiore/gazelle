@@ -36,14 +36,6 @@ int tinylibc_strcmp(const char *a, const char *b)
     return *(unsigned char *)a - *(unsigned char *)b;
 }
 
-char *tinylibc_strcpy(char *dest, const char *src)
-{
-    char *ret = dest;
-    while ((*dest++ = *src++))
-        ;
-    return ret;
-}
-
 char *tinylibc_strncpy(char *dest, const char *src, size_t n)
 {
     char *ret = dest;
