@@ -19,7 +19,13 @@
 
 #include "uart_buffer.h"
 
-#define UART_BUFFER_SIZE 64
+_Static_assert(UART_BUFFER_SIZE >= 2,
+               "UART_BUFFER_SIZE must be at least 2");
+_Static_assert(UART_BUFFER_SIZE <= 256,
+               "UART_BUFFER_SIZE must fit in uint8_t index");
+_Static_assert((UART_BUFFER_SIZE & (UART_BUFFER_SIZE - 1)) == 0,
+               "UART_BUFFER_SIZE must be a power of 2");
+
 static volatile uint8_t buffer[UART_BUFFER_SIZE];
 static volatile uint8_t head = 0;
 static volatile uint8_t tail = 0;
