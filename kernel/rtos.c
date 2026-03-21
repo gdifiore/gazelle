@@ -38,7 +38,9 @@ static int rr_next_idx_at_priority[IDLE + 1]; // Size based on the number of pri
 
 void rtos_init(void)
 {
+#ifdef __arm__
     __asm volatile("cpsie i" ::: "memory"); /* Enable interrupts */
+#endif
     task_count = 0;
     for (int i = 0; i < MAX_TASKS; i++)
     {
@@ -110,6 +112,74 @@ bool rtos_remove_task(void (*task_fn)(void))
     return true;
 }
 
+void rtos_sem_init(Semaphore *sem, uint8_t initial_count)
+{
+    sem->count = initial_count;
+    sem->waiter_count = 0;
+}
+
+bool rtos_sem_wait(Semaphore *sem)
+{
+    if (sem->count > 0)
+    {
+        sem->count--;
+        return true;
+    }
+
+    if (sem->waiter_count < MAX_TASKS)
+    {
+        sem->waiters[sem->waiter_count++] = (uint8_t)current_task_index;
+        tasks[current_task_index].state = TASK_BLOCKED;
+    }
+    else
+    {
+        tinylibc_panic("Semaphore wait queue full");
+    }
+
+    return false;
+}
+
+void rtos_sem_signal(Semaphore *sem)
+{
+    if (sem->waiter_count == 0)
+    {
+        sem->count++;
+        return;
+    }
+
+    /* Find highest-priority non-stale waiter. */
+    int8_t best_pos = -1;
+    for (uint8_t i = 0; i < sem->waiter_count; i++)
+    {
+        uint8_t idx = sem->waiters[i];
+        if (tasks[idx].state != TASK_BLOCKED)
+            continue;
+        if (best_pos == -1 || tasks[idx].priority < tasks[sem->waiters[best_pos]].priority)
+        {
+            best_pos = (int8_t)i;
+        }
+    }
+
+    if (best_pos == -1)
+    {
+        /* All queued waiters were stale -- treat as no waiters. */
+        sem->waiter_count = 0;
+        sem->count++;
+        return;
+    }
+
+    uint8_t task_idx = sem->waiters[best_pos];
+
+    /* Shift remaining waiters left to fill the gap. */
+    for (uint8_t i = (uint8_t)best_pos; i < sem->waiter_count - 1; i++)
+        sem->waiters[i] = sem->waiters[i + 1];
+    sem->waiter_count--;
+
+    /* Wake the task and pre-grant so rtos_sem_wait() succeeds next run. */
+    tasks[task_idx].state = TASK_READY;
+    sem->count++;
+}
+
 /*
  * rtos_task_cleanup - Remove all zombie tasks from the task array.
  *
@@ -166,7 +236,7 @@ static void rtos_task_cleanup(void)
             {
                 current_task_index--;
             }
-            
+
             // Fix: consecutive zombie tasks would be skipped
             i--;
         }
