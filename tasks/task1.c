@@ -17,9 +17,9 @@
  *   Uses a semaphore to ensure exclusive UART access.
  ******************************************************************************/
 
-#include "../tasks.h"
+#include "tasks.h"
 #include "../tinylibc/io.h"
-#include "../rtos.h"
+#include "../kernel/rtos.h"
 
 void task1(void)
 {

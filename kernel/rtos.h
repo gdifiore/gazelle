@@ -2,8 +2,8 @@
 #define RTOS_H
 
 #include "types.h"
+#include <stdint.h>
 #include <stdbool.h>
-#include <avr/io.h>
 
 #define MAX_TASKS 5
 

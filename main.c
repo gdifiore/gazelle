@@ -8,18 +8,16 @@
  * Author: Gabe DiFiore
  * Created: 2025-05-08
  *
- * Target MCU: ATmega328P
- * Toolchain: avr-gcc, avr-libc
- * Platform: Arduino Nano (bare-metal)
+ * Target MCU: LM3S6965EVB (ARM Cortex-M3)
+ * Toolchain: arm-none-eabi-gcc
+ * Platform: QEMU lm3s6965evb
  ******************************************************************************/
 
-#include "rtos.h"
-#include "tasks.h"
-#include "uart.h"
-#include "ipc.h"
+#include "kernel/rtos.h"
+#include "tasks/tasks.h"
+#include "drivers/uart.h"
+#include "drivers/ipc.h"
 #include "tinylibc/tinylibc.h"
-#include <avr/io.h>
-#include <util/delay.h>
 
 int main(void)
 {

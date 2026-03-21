@@ -14,9 +14,7 @@
  ******************************************************************************/
 
 #include "ipc.h"
-#include "types.h"
-#include "rtos.h"
-#include "tinylibc/tinylibc.h"
+#include "../tinylibc/tinylibc.h"
 
 static SharedMemory shm;
 

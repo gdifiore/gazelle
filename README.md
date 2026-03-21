@@ -1,56 +1,32 @@
 # gazelle
 
-BYO RTOS targeting the Arduino Nano's ATmega328 processor
+A minimal RTOS targeting the ARM Cortex-M3, emulated via QEMU.
 
 **Implement List**
 
 - [x] tasks & basic scheduler
-- [x] better scheduler - Priority-Based Round Robin
+- [x] better scheduler — Priority-Based Round Robin
 - [x] idle task
 - [x] UART output
-- [x] IPC - shared nmemory
+- [x] IPC — shared memory
 - [x] timing
-- [ ] semaphore (for preemptive scheduling)
-- [ ] memory management?
+- [ ] semaphores (for preemptive scheduling)
+- [ ] preemptive scheduling via PendSV + SysTick
+- [ ] memory management
 - [ ] enum of error types
 
 ## Pre-Requisites
 
-`sudo apt install gcc-avr avr-libc avrdude simavr libsimavr-dev`
+```
+sudo apt install gcc-arm-none-eabi qemu-system-arm
+```
 
 ## How To
 
 `make` → compiles everything
 
-`make upload` → flashes the code to the Arduino
-
-`make simulate` → simulates RTOS via simavr
+`make simulate` → runs under QEMU (`-machine lm3s6965evb -nographic`, UART → stdio); quit with `Ctrl-A X`, or `pkill qemu-system-arm` from another terminal
 
 `make clean` → removes all build files
 
-## Project Outline
-
-```
-gazelle/
-├── main.c                         # Entry point: initializes RTOS and starts tasks
-├── rtos.[ch]                      # Core RTOS kernel (task management, scheduling, semaphores)
-├── timer.[ch]                     # Millisecond tick using Timer1
-├── uart.[ch]                      # UART driver with optional ring buffer
-├── uart_buffer.[ch]               # Ring buffer implementation for UART receive
-├── ipc.[ch]                       # Shared memory IPC implementation
-├── types.h                        # Minimal custom type definitions
-├── tasks/
-│   ├── idle_task.c                # Idle task implementation
-│   ├── task1.c                    # Demo task 1
-│   ├── task2.c                    # Demo task 2
-│   └── test_priority_tasks.c      # Various tasks to test scheduling functionality (different priorities, sleep timings, semaphore hold/wait, IPC, etc.)
-├── tasks.h                        # Task function declarations
-├── tinylibc/                      # Minimal libc subset
-│   ├── io.[ch]                    # printf-style UART output
-│   ├── conv.[ch]                  # itoa/atoi
-│   ├── debug.[ch]                 # panic/assert
-│   ├── string.[ch]                # strlen, strcmp, strcpy, memset
-│   └── tinylibc.h                 # Unified include
-├── Makefile                       # Build system
-└── README.md                      # This file
-```
+`make DEBUG=1` → debug build with `-g`

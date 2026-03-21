@@ -13,8 +13,8 @@
  * Platform: Arduino Nano (bare-metal)
  ******************************************************************************/
 
-#include "../tasks.h"
-#include "../rtos.h"
+#include "tasks.h"
+#include "../kernel/rtos.h"
 #include "../tinylibc/io.h"
 
 void idle_task(void)

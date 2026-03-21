@@ -1,6 +1,7 @@
-#include "../tasks.h"
-#include "../ipc.h"
-#include "../rtos.h"
+#include "tasks.h"
+#include "../drivers/ipc.h"
+#include "../kernel/rtos.h"
+#include "../drivers/uart.h"
 #include "../tinylibc/tinylibc.h"
 
 // High Priority Test Tasks

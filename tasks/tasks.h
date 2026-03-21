@@ -1,9 +1,8 @@
 #ifndef TASKS_H
 #define TASKS_H
 
-#include "rtos.h"
-#include <avr/io.h>
-#include <util/delay.h>
+#include "../kernel/rtos.h"
+#include "../drivers/uart_buffer.h"
 
 void idle_task(void);
 

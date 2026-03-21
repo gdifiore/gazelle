@@ -1,90 +1,75 @@
-# MCU and programmer settings
-MCU = atmega328p
-F_CPU = 16000000UL
-PROGRAMMER = arduino
-PORT = /dev/ttyUSB0
-BAUD = 115200
-
-# Project name
+# Target platform
 TARGET = gazelle
 
 # Source files
-SRC = main.c rtos.c uart.c timer.c uart_buffer.c ipc.c \
-		tinylibc/conv.c tinylibc/debug.c tinylibc/io.c tinylibc/string.c \
-		tasks/idle_task.c tasks/task1.c tasks/task2.c tasks/test_priority_tasks.c
+SRC = bsp/startup.c main.c \
+      kernel/rtos.c kernel/timer.c \
+      drivers/uart.c drivers/uart_buffer.c drivers/ipc.c \
+      tinylibc/conv.c tinylibc/debug.c tinylibc/io.c tinylibc/string.c \
+      tasks/idle_task.c tasks/task1.c tasks/task2.c tasks/test_priority_tasks.c
 
-# Compiler and tools
-CC = avr-gcc
-OBJCOPY = avr-objcopy
-SIZE = avr-size
-AVRDUDE = avrdude
+# ARM Cortex-M3 toolchain
+CC      = arm-none-eabi-gcc
+OBJCOPY = arm-none-eabi-objcopy
+SIZE    = arm-none-eabi-size
 
-# Base compiler flags
-CFLAGS = -mmcu=$(MCU) -DF_CPU=$(F_CPU) -Os -Wall -std=c11
-LDFLAGS = -mmcu=$(MCU)
+# Compiler flags
+CFLAGS  = -mthumb -mcpu=cortex-m3 -Os -Wall -std=c11
 
-# Debug build handling
+# Linker flags
+LDFLAGS = -mthumb -mcpu=cortex-m3 -T lm3s6965.ld -nostartfiles
+
+# Debug build
 ifeq ($(DEBUG), 1)
-  # Assuming simavr is installed in ~/simavr or /usr/local/include/simavr
-  # Update these paths according to your simavr installation
-  SIMAVR_PATH = $(shell if [ -d ~/simavr ]; then echo ~/simavr; elif [ -d /usr/local/include/simavr ]; then echo /usr/local/include/simavr; else echo /usr/include/simavr; fi)
-
-  CFLAGS += -DDEBUG -g -I$(SIMAVR_PATH)
+  CFLAGS  += -DDEBUG -g
   BUILD_DIR = debug
 else
   BUILD_DIR = release
 endif
 
-# Object files with build directory
+# Derived paths
 OBJ = $(patsubst %.c,$(BUILD_DIR)/%.o,$(SRC))
-
-# Output files
-HEX = $(BUILD_DIR)/$(TARGET).hex
 ELF = $(BUILD_DIR)/$(TARGET).elf
+HEX = $(BUILD_DIR)/$(TARGET).hex
 
 # Default target
 all: directories $(HEX) size
 
 # Create build directories
 directories:
-	@mkdir -p $(BUILD_DIR)
+	@mkdir -p $(BUILD_DIR)/bsp
+	@mkdir -p $(BUILD_DIR)/kernel
+	@mkdir -p $(BUILD_DIR)/drivers
 	@mkdir -p $(BUILD_DIR)/tasks
+	@mkdir -p $(BUILD_DIR)/tinylibc
 
-# Compile source files to object files
+# Compile
 $(BUILD_DIR)/%.o: %.c
 	@mkdir -p $(dir $@)
 	$(CC) $(CFLAGS) -c $< -o $@
 
-# Link object files to ELF
+# Link
 $(ELF): $(OBJ)
 	$(CC) $(LDFLAGS) -o $@ $^
 
-# Convert ELF to HEX
+# HEX for reference / flashing real hardware
 $(HEX): $(ELF)
-	$(OBJCOPY) -O ihex -R .eeprom $< $@
+	$(OBJCOPY) -O ihex $< $@
 
-# Display size information
+# Size report
 size: $(ELF)
-	$(SIZE) --format=avr --mcu=$(MCU) $<
+	$(SIZE) $<
 
-# Flash the device
-upload: $(HEX)
-	$(AVRDUDE) -c $(PROGRAMMER) -p $(MCU) -P $(PORT) -b $(BAUD) -U flash:w:$(HEX)
-
-# Simulate using simavr
+# Run under QEMU
 simulate: $(ELF)
-	simavr -m $(MCU) -f $(F_CPU) $<
+	qemu-system-arm -machine lm3s6965evb -nographic -kernel $<
 
-# Simulate with tracing
-simulate-trace: $(ELF)
-	simavr -m $(MCU) -f $(F_CPU) -v $<
-
-# Clean build artifacts
+# Clean
 clean:
 	rm -rf $(BUILD_DIR)
 
-# Target to explicitly build in debug mode
+# Explicit debug build
 debug:
 	$(MAKE) DEBUG=1
 
-.PHONY: all directories upload simulate simulate-trace clean debug size show-simavr-path
+.PHONY: all directories simulate clean debug size

@@ -1,11 +1,11 @@
 #ifndef IPC_H
 #define IPC_H
 
-#include "types.h"
-#include "rtos.h"
-#include "stdbool.h"
+#include "../kernel/types.h"
+#include "../kernel/rtos.h"
+#include <stdbool.h>
 
-#define IPC_BUFFER_SIZE 16 // Small size due to ATmega328P's 2KB SRAM
+#define IPC_BUFFER_SIZE 16 // Number of slots in the circular buffer
 #define IPC_DATA_SIZE 32   // Max size of each data item
 
 typedef struct

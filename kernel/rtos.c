@@ -16,9 +16,8 @@
 
 #include "rtos.h"
 #include "timer.h"
-#include "tasks.h"
-#include "tinylibc/tinylibc.h"
-#include <util/delay.h>
+#include "../tasks/tasks.h"
+#include "../tinylibc/tinylibc.h"
 
 volatile uint32_t system_ticks = 0;
 
@@ -39,7 +38,7 @@ static int rr_next_idx_at_priority[IDLE + 1]; // Size based on the number of pri
 
 void rtos_init(void)
 {
-    sei();
+    __asm volatile("cpsie i" ::: "memory"); /* Enable interrupts */
     task_count = 0;
     for (int i = 0; i < MAX_TASKS; i++)
     {
@@ -156,8 +155,9 @@ bool rtos_remove_task(void (*task_fn)(void))
 
 void rtos_delay(uint16_t ms)
 {
-    while (ms--)
-        _delay_ms(1);
+    uint32_t start = system_ticks;
+    while ((system_ticks - start) < ms)
+        ; /* Busy-wait; system_ticks increments at 1 kHz */
 }
 
 static void tick_isr_callback(void)

@@ -19,7 +19,7 @@
 
 #include "io.h"
 #include "conv.h"
-#include "../uart.h"
+#include "../drivers/uart.h"
 
 void tinylibc_putchar(char c)
 {

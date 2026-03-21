@@ -5,7 +5,7 @@
 #include <stddef.h>
 
 #ifndef BAUD
-#define BAUD 9600
+#define BAUD 115200
 #endif
 
 void uart_init(void);
