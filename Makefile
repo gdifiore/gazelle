@@ -3,10 +3,10 @@ TARGET = gazelle
 
 # Source files
 SRC = bsp/startup.c main.c \
-      kernel/rtos.c kernel/timer.c \
+      kernel/rtos.c kernel/timer.c kernel/idle_task.c \
       drivers/uart.c drivers/uart_buffer.c drivers/ipc.c \
       tinylibc/conv.c tinylibc/debug.c tinylibc/io.c tinylibc/string.c \
-      tasks/idle_task.c tasks/task1.c tasks/task2.c tasks/test_priority_tasks.c
+      examples/sensor_task.c examples/display_task.c examples/heartbeat_task.c
 
 # ARM Cortex-M3 toolchain
 CC      = arm-none-eabi-gcc
@@ -40,8 +40,8 @@ directories:
 	@mkdir -p $(BUILD_DIR)/bsp
 	@mkdir -p $(BUILD_DIR)/kernel
 	@mkdir -p $(BUILD_DIR)/drivers
-	@mkdir -p $(BUILD_DIR)/tasks
 	@mkdir -p $(BUILD_DIR)/tinylibc
+	@mkdir -p $(BUILD_DIR)/examples
 
 # Compile
 $(BUILD_DIR)/%.o: %.c

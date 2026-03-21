@@ -3,7 +3,7 @@
  *
  * Description:
  *   Idle task for the gazelle RTOS. Runs when no other tasks are ready.
- *   Currently yields control immediately to keep the scheduler responsive.
+ *   Yields immediately to keep the scheduler responsive.
  *
  * Author: Gabe DiFiore
  * Created: 2025-05-18
@@ -11,22 +11,15 @@
  * Target MCU: LM3S6965EVB (ARM Cortex-M3)
  * Toolchain: arm-none-eabi-gcc
  * Platform: QEMU lm3s6965evb
+ *
+ * Notes:
+ *   - TODO: replace busy-yield with a WFI (Wait For Interrupt) instruction
+ *     once the preemptive scheduler lands, to reduce power consumption.
  ******************************************************************************/
 
-#include "tasks.h"
-#include "../kernel/rtos.h"
-#include "../tinylibc/io.h"
+#include "rtos.h"
 
 void idle_task(void)
 {
-    // TODO: Enter into sleep mode
-
-    // Minimal idle task: yield immediately to keep scheduler responsive
-    static uint8_t counter = 0;
-    if (counter++ % 10 == 0)
-    {
-        tinylibc_printf("IDLE (Tick: %u)\n", system_ticks);
-    }
-
     rtos_sleep_ticks(1);
 }
