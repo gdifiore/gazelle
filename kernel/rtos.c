@@ -104,53 +104,73 @@ bool rtos_remove_task(void (*task_fn)(void))
         return false;
     }
 
-    // Clear task fields
-    tasks[found_idx].fn = NULL;
-    tasks[found_idx].priority = IDLE;
-    tasks[found_idx].wake_tick = 0;
-    tasks[found_idx].state = TASK_READY;
-
-    // Shift tasks to fill the gap
-    for (int i = found_idx; i < task_count - 1; i++)
-    {
-        tasks[i] = tasks[i + 1];
-    }
-
-    // Clear the last task slot
-    Task *last_task = &tasks[task_count - 1];
-    last_task->fn = NULL;
-    last_task->priority = IDLE;
-    last_task->wake_tick = 0;
-    last_task->state = TASK_READY;
-    last_task->is_idle = false;
-
-    // Decrement task count
-    task_count--;
-
-    // Update round-robin indices
-    for (int p = 0; p <= IDLE; p++)
-    {
-        if (rr_next_idx_at_priority[p] > found_idx)
-        {
-            rr_next_idx_at_priority[p]--;
-        }
-        else if (rr_next_idx_at_priority[p] >= task_count)
-        {
-            rr_next_idx_at_priority[p] = 0;
-        }
-    }
-
-    // Prevent removal of current task while it's running
-    if (current_task_index == found_idx)
-    {
-        current_task_index = 0; // Fallback to idle task
-    }
-    else if (current_task_index > found_idx)
-    {
-        current_task_index--;
-    }
+    // Mark for deletion
+    tasks[found_idx].state = TASK_ZOMBIE;
 
     return true;
+}
+
+/*
+ * rtos_task_cleanup - Remove all zombie tasks from the task array.
+ *
+ * Called at the top of each scheduling cycle, before task selection.
+ * Compacts the task array in place and updates task_count,
+ * rr_next_idx_at_priority, and current_task_index accordingly.
+ *
+ * Deferred removal (via TASK_ZOMBIE) ensures that a task removing itself
+ * mid-run does not corrupt the scheduler's loop index.
+ */
+static void rtos_task_cleanup(void)
+{
+    for (int i = 0; i < task_count; i++)
+    {
+        if (tasks[i].state == TASK_ZOMBIE)
+        {
+            // Clear task fields
+            tasks[i].fn = NULL;
+            tasks[i].priority = IDLE;
+            tasks[i].wake_tick = 0;
+            tasks[i].state = TASK_READY;
+
+            // Shift tasks to fill the gap
+            for (int j = i; j < task_count - 1; j++)
+            {
+                tasks[j] = tasks[j + 1];
+            }
+
+            // Clear the last task slot
+            Task *last_task = &tasks[task_count - 1];
+            last_task->fn = NULL;
+            last_task->priority = IDLE;
+            last_task->wake_tick = 0;
+            last_task->state = TASK_READY;
+            last_task->is_idle = false;
+
+            // Decrement task count
+            task_count--;
+
+            // Update round-robin indices
+            for (int p = 0; p <= IDLE; p++)
+            {
+                if (rr_next_idx_at_priority[p] > i)
+                {
+                    rr_next_idx_at_priority[p]--;
+                }
+                else if (rr_next_idx_at_priority[p] >= task_count)
+                {
+                    rr_next_idx_at_priority[p] = 0;
+                }
+            }
+
+            if (current_task_index > i)
+            {
+                current_task_index--;
+            }
+            
+            // Fix: consecutive zombie tasks would be skipped
+            i--;
+        }
+    }
 }
 
 void rtos_delay(uint16_t ms)
@@ -178,6 +198,9 @@ void rtos_start(void)
         int selected_task_idx = -1;
         // Index of next search
         int search_start_idx = 0;
+
+        // Remove zombie tasks
+        rtos_task_cleanup();
 
         for (int i = 0; i < task_count; i++)
         {

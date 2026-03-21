@@ -11,7 +11,8 @@ typedef enum
 {
     TASK_READY,
     TASK_SLEEPING,
-    TASK_BLOCKED
+    TASK_BLOCKED,
+    TASK_ZOMBIE
 } TaskState;
 
 // Task priorities: lower value = higher priority
