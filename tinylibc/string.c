@@ -8,9 +8,9 @@
  * Author: Gabe DiFiore
  * Created: 2025-05-14
  *
- * Target MCU: ATmega328P
- * Toolchain: avr-gcc, avr-libc
- * Platform: Arduino Nano (bare-metal)
+ * Target MCU: LM3S6965EVB (ARM Cortex-M3)
+ * Toolchain: arm-none-eabi-gcc
+ * Platform: QEMU lm3s6965evb
  *
  * Notes:
  *   - Designed for minimal memory usage on resource-constrained devices.

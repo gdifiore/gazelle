@@ -7,14 +7,12 @@
  * Author: Gabe DiFiore
  * Created: 2025-05-08
  *
- * Target MCU: ATmega328P
- * Toolchain: avr-gcc, avr-libc
- * Platform: Arduino Nano (bare-metal)
+ * Target MCU: LM3S6965EVB (ARM Cortex-M3)
+ * Toolchain: arm-none-eabi-gcc
+ * Platform: QEMU lm3s6965evb
  *
  * Notes:
- *   This is a simple demo task that prints "Task 2" and then
- *   delays for 100ms before returning to the scheduler.
- *   Uses a semaphore to ensure exclusive UART access.
+ *   Simple demo task: prints "Task 2" and sleeps for 100 ticks.
  ******************************************************************************/
 
 #include "tasks.h"

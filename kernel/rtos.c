@@ -10,8 +10,8 @@
  *
  * Notes:
  *   - Uses cooperative multitasking (non-preemptive)
- *   - Supports up to 3 tasks (including idle task)
- *   - No priority scheduling implemented
+ *   - Supports up to MAX_TASKS tasks (including idle task)
+ *   - Priority-based round-robin scheduling
  ******************************************************************************/
 
 #include "rtos.h"

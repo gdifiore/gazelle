@@ -8,9 +8,9 @@
  * Author: Gabe DiFiore
  * Created: 2025-05-14
  *
- * Target MCU: ATmega328P
- * Toolchain: avr-gcc, avr-libc
- * Platform: Arduino Nano (bare-metal)
+ * Target MCU: LM3S6965EVB (ARM Cortex-M3)
+ * Toolchain: arm-none-eabi-gcc
+ * Platform: QEMU lm3s6965evb
  *
  * Notes:
  *   - Relies on the UART driver for output operations.
@@ -23,10 +23,6 @@
 
 void tinylibc_putchar(char c)
 {
-    // Sending '\r' before '\n' for newlines caused simavr to append double periods ("..") in the UART output,
-    // likely due to its handling of the \r\n sequence as two events. Commenting out the '\r' transmission
-    // results in only '\n' being sent, reducing the simavr output artifact to a single period (".") per line.
-    // if (c == '\n') uart_transmit('\r');
     uart_transmit((uint8_t)c);
 }
 
