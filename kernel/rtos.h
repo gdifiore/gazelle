@@ -11,7 +11,7 @@ typedef enum
 {
     TASK_READY,
     TASK_SLEEPING,
-    TASK_BLOCKED,
+    // TASK_BLOCKED, Semaphores are removed for now
     TASK_ZOMBIE
 } TaskState;
 
@@ -32,6 +32,5 @@ bool rtos_remove_task(void (*task_fn)(void));
 void rtos_start(void);
 void rtos_delay(uint16_t ms);
 void rtos_sleep_ticks(uint32_t ticks);
-void rtos_sem_init(uint8_t sem_id, uint8_t initial_value);
 
 #endif

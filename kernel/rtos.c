@@ -3,7 +3,7 @@
  *
  * Description:
  *   Minimal cooperative RTOS kernel with static task scheduler.
- *   Provides basic task creation, scheduling, delay, and semaphore functionality.
+ *   Provides basic task creation, scheduling, and delay
  *
  * Author: Gabe DiFiore
  * Created: 2025-05-08
