@@ -68,8 +68,12 @@ simulate: $(ELF)
 clean:
 	rm -rf $(BUILD_DIR)
 
+# Host-native unit tests (no QEMU required)
+test:
+	$(MAKE) -C tests test
+
 # Explicit debug build
 debug:
 	$(MAKE) DEBUG=1
 
-.PHONY: all directories simulate clean debug size
+.PHONY: all directories simulate clean debug size test
