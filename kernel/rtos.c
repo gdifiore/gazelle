@@ -16,6 +16,7 @@
 
 #include "rtos.h"
 #include "timer.h"
+#include "types.h"
 #include "../tinylibc/tinylibc.h"
 
 extern void idle_task(void);
@@ -64,13 +65,14 @@ void rtos_init(void)
     }
 }
 
-bool rtos_create_task(void (*task_fn)(void), TaskPriority task_priority)
+GazelleError rtos_create_task(void (*task_fn)(void), TaskPriority task_priority)
 {
-    if (!task_fn || task_count >= MAX_TASKS || task_priority > IDLE)
-    {
-        return false;
-    }
+    if (!task_fn || task_priority > IDLE)
+        return ERR_INVALID_ARG;
 
+    if (task_count >= MAX_TASKS)
+        return ERR_TASK_FULL;
+    
     tasks[task_count].fn = task_fn;
     tasks[task_count].priority = task_priority;
     tasks[task_count].wake_tick = 0;
@@ -78,10 +80,10 @@ bool rtos_create_task(void (*task_fn)(void), TaskPriority task_priority)
     tasks[task_count].is_idle = false;
     task_count++;
 
-    return true;
+    return ERR_OK;
 }
 
-bool rtos_remove_task(void (*task_fn)(void))
+GazelleError rtos_remove_task(void (*task_fn)(void))
 {
     int found_idx = -1;
 
@@ -94,7 +96,7 @@ bool rtos_remove_task(void (*task_fn)(void))
             if (tasks[i].is_idle)
             {
                 tinylibc_printf("RTOS: Cannot remove idle task\n");
-                return false;
+                return ERR_INVALID_ARG;
             }
             found_idx = i;
             break;
@@ -104,7 +106,7 @@ bool rtos_remove_task(void (*task_fn)(void))
     if (found_idx == -1)
     {
         tinylibc_printf("RTOS: Task not found for removal\n");
-        return false;
+        return ERR_INVALID_ARG;
     }
 
     // Mark for deletion
@@ -119,12 +121,12 @@ void rtos_sem_init(Semaphore *sem, uint8_t initial_count)
     sem->waiter_count = 0;
 }
 
-bool rtos_sem_wait(Semaphore *sem)
+GazelleError rtos_sem_wait(Semaphore *sem)
 {
     if (sem->count > 0)
     {
         sem->count--;
-        return true;
+        return ERR_OK;
     }
 
     if (sem->waiter_count < MAX_TASKS)
@@ -137,7 +139,7 @@ bool rtos_sem_wait(Semaphore *sem)
         tinylibc_panic("Semaphore wait queue full");
     }
 
-    return false;
+    return ERR_WOULD_BLOCK;
 }
 
 void rtos_sem_signal(Semaphore *sem)

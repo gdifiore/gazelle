@@ -23,7 +23,7 @@ void sensor_task(void)
     tinylibc_strncpy(msg, "reading:", IPC_DATA_SIZE);
     tinylibc_itoa(reading, msg + 8, 10);
 
-    if (!ipc_write(msg, (uint8_t)(tinylibc_strlen(msg) + 1)))
+    if (ipc_write(msg, (uint8_t)(tinylibc_strlen(msg) + 1)) != ERR_OK)
         tinylibc_printf("[sensor] queue full, dropped reading %u\n", reading);
 
     rtos_sleep_ticks(200);

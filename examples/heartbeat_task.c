@@ -19,7 +19,7 @@
 
 void heartbeat_task(void)
 {
-    if (!rtos_sem_wait(&uart_mutex))
+    if (rtos_sem_wait(&uart_mutex) != ERR_OK)
         return;
 
     tinylibc_printf("[heartbeat] tick: %u\n", system_ticks);

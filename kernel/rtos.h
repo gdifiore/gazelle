@@ -46,7 +46,7 @@ void rtos_init(void);
  * Returns true on success.  Returns false if the task table is full
  * (MAX_TASKS) or task_priority is out of range.
  */
-bool rtos_create_task(void (*task_fn)(void), TaskPriority task_priority);
+GazelleError rtos_create_task(void (*task_fn)(void), TaskPriority task_priority);
 
 /*
  * Mark a task for deferred removal.
@@ -57,7 +57,7 @@ bool rtos_create_task(void (*task_fn)(void), TaskPriority task_priority);
  *
  * Returns false if task_fn is not found or refers to the idle task.
  */
-bool rtos_remove_task(void (*task_fn)(void));
+GazelleError rtos_remove_task(void (*task_fn)(void));
 
 /*
  * Start the scheduler.  Never returns.
@@ -110,7 +110,7 @@ void rtos_sem_init(Semaphore *sem, uint8_t initial_count);
  *       rtos_sem_signal(&lock);
  *   }
  */
-bool rtos_sem_wait(Semaphore *sem);
+GazelleError rtos_sem_wait(Semaphore *sem);
 
 /*
  * Release a semaphore.
