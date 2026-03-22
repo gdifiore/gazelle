@@ -35,7 +35,7 @@ void ipc_init(void);
  *   - data is not null-terminated within len bytes
  *   - the buffer is full (count == IPC_BUFFER_SIZE)
  */
-bool ipc_write(const char *data, uint8_t len);
+GazelleError ipc_write(const char *data, uint8_t len);
 
 /*
  * Read the oldest message from the queue into data.
@@ -47,6 +47,6 @@ bool ipc_write(const char *data, uint8_t len);
  * the output buffer (*out_len >= max_len).  The message is NOT consumed on
  * failure; a subsequent call with a larger buffer will still find it.
  */
-bool ipc_read(char *data, uint8_t max_len, uint8_t *out_len);
+GazelleError ipc_read(char *data, uint8_t max_len, uint8_t *out_len);
 
 #endif // IPC_H

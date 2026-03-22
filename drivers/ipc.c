@@ -14,6 +14,7 @@
  ******************************************************************************/
 
 #include "ipc.h"
+#include "../kernel/types.h"
 #include "../tinylibc/tinylibc.h"
 
 _Static_assert(IPC_BUFFER_SIZE >= 1,
@@ -35,13 +36,13 @@ void ipc_init(void)
     tinylibc_memset(shm.buffer, 0, IPC_BUFFER_SIZE * IPC_DATA_SIZE);
 }
 
-bool ipc_write(const char *data, uint8_t len)
+GazelleError ipc_write(const char *data, uint8_t len)
 {
     // Check if len exceeds IPC_DATA_SIZE (including null terminator)
     if (len >= IPC_DATA_SIZE)
     {
         tinylibc_printf("IPC: Write failed, data length %u >= %u (max including null)\n", len, IPC_DATA_SIZE);
-        return false;
+        return ERR_INVALID_ARG;
     }
 
     // Check if data is null-terminated within len
@@ -57,13 +58,13 @@ bool ipc_write(const char *data, uint8_t len)
     if (!null_terminated)
     {
         tinylibc_printf("IPC: Write failed, data not null-terminated within %u bytes\n", len);
-        return false;
+        return ERR_INVALID_ARG;
     }
 
     if (shm.count >= IPC_BUFFER_SIZE)
     {
         tinylibc_printf("IPC: Write failed, buffer full\n");
-        return false;
+        return ERR_IPC_FULL;
     }
 
     // Copy data to buffer with bounded copy
@@ -71,20 +72,20 @@ bool ipc_write(const char *data, uint8_t len)
     shm.head = (shm.head + 1) % IPC_BUFFER_SIZE;
     shm.count++;
 
-    return true;
+    return ERR_OK;
 }
 
-bool ipc_read(char *data, uint8_t max_len, uint8_t *out_len)
+GazelleError ipc_read(char *data, uint8_t max_len, uint8_t *out_len)
 {
     if (shm.count == 0)
-        return false;
+        return ERR_IPC_EMPTY;
 
     // Compute length of data in buffer
     *out_len = tinylibc_strlen(shm.buffer[shm.tail]);
     if (*out_len >= max_len)
     {
         tinylibc_printf("IPC: Read failed, output buffer too small (%u >= %u)\n", *out_len, max_len);
-        return false;
+        return ERR_INVALID_ARG;
     }
 
     // Copy data from buffer with bounded copy
@@ -92,5 +93,5 @@ bool ipc_read(char *data, uint8_t max_len, uint8_t *out_len)
     shm.tail = (shm.tail + 1) % IPC_BUFFER_SIZE;
     shm.count--;
 
-    return true;
+    return ERR_OK;
 }

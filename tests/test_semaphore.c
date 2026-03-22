@@ -38,7 +38,7 @@ static void test_wait_acquires_when_available(void)
 {
     Semaphore sem;
     rtos_sem_init(&sem, 1);
-    ASSERT(rtos_sem_wait(&sem) == true);
+    ASSERT(rtos_sem_wait(&sem) == ERR_OK);
     ASSERT(sem.count == 0);
     ASSERT(sem.waiter_count == 0);
 }
@@ -57,8 +57,8 @@ static void test_wait_blocks_when_unavailable(void)
     rtos_init();
     Semaphore sem;
     rtos_sem_init(&sem, 0);
-    bool acquired = rtos_sem_wait(&sem);
-    ASSERT(acquired == false);
+    GazelleError acquired = rtos_sem_wait(&sem);
+    ASSERT(acquired != ERR_OK);
     ASSERT(sem.waiter_count == 1);
     ASSERT(sem.waiters[0] == 0); /* current_task_index == 0 after rtos_init */
 }
@@ -104,7 +104,7 @@ static void test_woken_task_can_reacquire(void)
     rtos_sem_init(&sem, 0);
     rtos_sem_wait(&sem);    /* block */
     rtos_sem_signal(&sem);  /* wake + pre-grant (count == 1) */
-    ASSERT(rtos_sem_wait(&sem) == true); /* woken task re-acquires */
+    ASSERT(rtos_sem_wait(&sem) == ERR_OK); /* woken task re-acquires */
     ASSERT(sem.count == 0);
 }
 
@@ -112,10 +112,10 @@ static void test_counting_semaphore(void)
 {
     Semaphore sem;
     rtos_sem_init(&sem, 3);
-    ASSERT(rtos_sem_wait(&sem) == true);
-    ASSERT(rtos_sem_wait(&sem) == true);
-    ASSERT(rtos_sem_wait(&sem) == true);
-    ASSERT(rtos_sem_wait(&sem) == false); /* count exhausted */
+    ASSERT(rtos_sem_wait(&sem) == ERR_OK);
+    ASSERT(rtos_sem_wait(&sem) == ERR_OK);
+    ASSERT(rtos_sem_wait(&sem) == ERR_OK);
+    ASSERT(rtos_sem_wait(&sem) != ERR_OK); /* count exhausted */
     ASSERT(sem.waiter_count == 1);
 }
 
@@ -139,12 +139,12 @@ static void test_full_mutex_cycle(void)
     rtos_sem_init(&mutex, 1);
 
     /* Acquire */
-    ASSERT(rtos_sem_wait(&mutex) == true);
+    ASSERT(rtos_sem_wait(&mutex) == ERR_OK);
     ASSERT(mutex.count == 0);
 
     /* Attempt to acquire again — should block */
-    bool second = rtos_sem_wait(&mutex);
-    ASSERT(second == false);
+    GazelleError second = rtos_sem_wait(&mutex);
+    ASSERT(second != ERR_OK);
     ASSERT(mutex.waiter_count == 1);
 
     /* Release — wakes the blocked task */

@@ -21,12 +21,12 @@ void display_task(void)
 {
     /* Acquire UART access before reading IPC — never consume a message
        we can't immediately print. */
-    if (!rtos_sem_wait(&uart_mutex))
+    if (rtos_sem_wait(&uart_mutex) != ERR_OK)
         return;
 
     char msg[IPC_DATA_SIZE];
     uint8_t len;
-    if (ipc_read(msg, sizeof(msg), &len))
+    if (ipc_read(msg, sizeof(msg), &len) == ERR_OK)
         tinylibc_printf("[display] %s\n", msg);
 
     rtos_sem_signal(&uart_mutex);
